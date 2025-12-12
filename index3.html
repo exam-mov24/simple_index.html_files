@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Examen MOV24 - Winter</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       height: 100vh;
@@ -19,29 +16,6 @@
       font-family: Arial, sans-serif;
       color: #ffffff;
       background: radial-gradient(circle at top, #4f9dfc 0%, #0b1f3d 60%, #020816 100%);
-    }
-
-    .snowflake {
-      position: fixed;
-      top: -10px;
-      color: #ffffff;
-      font-size: 0.8rem;
-      opacity: 0.8;
-      pointer-events: none;
-      animation-name: fall;
-      animation-timing-function: linear;
-      animation-iteration-count: infinite;
-    }
-
-    @keyframes fall {
-      0% {
-        transform: translateY(0) translateX(0);
-        opacity: 0.9;
-      }
-      100% {
-        transform: translateY(110vh) translateX(20px);
-        opacity: 0.1;
-      }
     }
 
     .title {
@@ -55,21 +29,76 @@
         0 0 12px rgba(255, 255, 255, 0.7),
         0 0 24px rgba(173, 216, 230, 0.8);
     }
+
+    /* More snow (many flakes via JS) */
+    .snowflake {
+      position: fixed;
+      top: -20px;
+      color: #ffffff;
+      pointer-events: none;
+      z-index: 1;
+      will-change: transform, opacity;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
+    }
+
+    @keyframes fall {
+      0%   { transform: translate3d(0, 0, 0); opacity: 0.95; }
+      100% { transform: translate3d(var(--drift, 30px), 115vh, 0); opacity: 0.05; }
+    }
+
+    /* Optional soft “snow haze” at bottom */
+    .ground-haze {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      height: 22vh;
+      background: radial-gradient(ellipse at center,
+        rgba(255,255,255,0.20) 0%,
+        rgba(255,255,255,0.10) 35%,
+        rgba(255,255,255,0.00) 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <div class="title">examen mov24</div>
+  <div class="ground-haze"></div>
 
-  <!-- Simple snowflakes -->
-  <div class="snowflake" style="left: 5%;  animation-duration: 10s; animation-delay: 0s;">*</div>
-  <div class="snowflake" style="left: 15%; animation-duration: 12s; animation-delay: 2s;">*</div>
-  <div class="snowflake" style="left: 25%; animation-duration: 9s;  animation-delay: 1s;">*</div>
-  <div class="snowflake" style="left: 35%; animation-duration: 11s; animation-delay: 3s;">*</div>
-  <div class="snowflake" style="left: 45%; animation-duration: 13s; animation-delay: 0.5s;">*</div>
-  <div class="snowflake" style="left: 55%; animation-duration: 8s;  animation-delay: 1.5s;">*</div>
-  <div class="snowflake" style="left: 65%; animation-duration: 14s; animation-delay: 2.5s;">*</div>
-  <div class="snowflake" style="left: 75%; animation-duration: 10s; animation-delay: 4s;">*</div>
-  <div class="snowflake" style="left: 85%; animation-duration: 9s;  animation-delay: 3.5s;">*</div>
-  <div class="snowflake" style="left: 95%; animation-duration: 12s; animation-delay: 1.2s;">*</div>
+  <script>
+    // Create lots of flakes
+    const SNOW_COUNT = 160; // increase for even more snow (e.g. 220)
+    const symbols = ["❄", "❅", "❆", "*"];
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    for (let i = 0; i < SNOW_COUNT; i++) {
+      const flake = document.createElement("div");
+      flake.className = "snowflake";
+      flake.textContent = pick(symbols);
+
+      const left = rand(0, 100);
+      const size = rand(0.55, 1.4);          // font size scale
+      const duration = rand(6, 18);          // fall speed
+      const delay = rand(-18, 0);            // start already “in progress”
+      const drift = rand(-60, 60);           // sideways movement
+      const opacity = rand(0.35, 0.95);
+
+      flake.style.left = left + "vw";
+      flake.style.fontSize = (size * 1.1) + "rem";
+      flake.style.animationDuration = duration + "s";
+      flake.style.animationDelay = delay + "s";
+      flake.style.opacity = opacity;
+      flake.style.setProperty("--drift", drift + "px");
+
+      // Some flakes start from different heights for “denser” snow
+      flake.style.top = rand(-30, 100) + "vh";
+
+      document.body.appendChild(flake);
+    }
+  </script>
 </body>
 </html>
